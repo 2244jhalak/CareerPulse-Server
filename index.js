@@ -34,6 +34,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const jobsCollection = client.db("jobDB").collection('jobs');
+    const appliedCollection = client.db("jobDB").collection('applied');
     // Get all jobs data from db
     app.get('/jobs',async (req,res)=>{
          const result=await jobsCollection.find().toArray();
@@ -46,6 +47,14 @@ async function run() {
       const query={_id: new ObjectId(id)};
       const result=await jobsCollection.findOne(query);
       res.send(result);
+    })
+    // Save an applied data in db
+    app.post('/applied',async (req,res)=>{
+      const appliedData=req.body;
+      console.log(appliedData);
+      const result=await appliedCollection.insertOne(appliedData);
+      res.send(result);
+
     })
 
     // Send a ping to confirm a successful connection
