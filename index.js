@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config()
 
@@ -33,7 +33,20 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    const jobsCollection = client.db("jobDB").collection('jobs');
+    // Get all jobs data from db
+    app.get('/jobs',async (req,res)=>{
+         const result=await jobsCollection.find().toArray();
+         res.send(result);
+    })
+
+    // Get a single job data from db using job id
+    app.get('/job/:id',async(req,res)=>{
+      const id=req.params.id;
+      const query={_id: new ObjectId(id)};
+      const result=await jobsCollection.findOne(query);
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -49,9 +62,9 @@ run().catch(console.dir);
 
 
 app.get('/',(req,res)=>{
-    res.send('Art & craft server is running')
+    res.send('Job server is running')
 })
 
 app.listen(port, () => {
-    console.log(`Art & craft Server is running on port : ${port}`)
+    console.log(`Job Server is running on port : ${port}`)
 })
