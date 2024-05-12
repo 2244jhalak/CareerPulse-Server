@@ -49,7 +49,7 @@ async function run() {
       res.send(result);
     })
     // Get jobs data from db using job email
-    app.get('/job/:email',async(req,res)=>{
+    app.get('/jobs/:email',async(req,res)=>{
       const email=req.params.email;
       const query={email: email};
       const result=await jobsCollection.find(query).toArray();
@@ -70,6 +70,13 @@ async function run() {
       const result=await jobsCollection.insertOne(jobData);
       res.send(result);
 
+    })
+    // Delete a single job data from db using job id
+    app.get('/job/:id',async(req,res)=>{
+      const id=req.params.id;
+      const query={_id: new ObjectId(id)};
+      const result=await jobsCollection.deleteOne(query);
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection
