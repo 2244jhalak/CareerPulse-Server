@@ -40,6 +40,16 @@ async function run() {
          const result=await jobsCollection.find().toArray();
          res.send(result);
     })
+    // Get applied data from db
+    app.get('/applied',async (req,res)=>{
+         const result=await appliedCollection.find().toArray();
+         res.send(result);
+    })
+    // Get all jobs data from db
+    app.get('/jobs',async (req,res)=>{
+         const result=await jobsCollection.find().toArray();
+         res.send(result);
+    })
 
     // Get a single job data from db using job id
     app.get('/job/:id',async(req,res)=>{
