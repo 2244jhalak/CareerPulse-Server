@@ -65,6 +65,13 @@ async function run() {
       const result=await jobsCollection.find(query).toArray();
       res.send(result);
     })
+    // Get appliedJobs data from db using user email
+    app.get('/applied/:email',async(req,res)=>{
+      const email=req.params.email;
+      const query={email: email};
+      const result=await appliedCollection.find(query).toArray();
+      res.send(result);
+    })
     // Save an applied data in db
     app.post('/applied',async (req,res)=>{
       const appliedData=req.body;
