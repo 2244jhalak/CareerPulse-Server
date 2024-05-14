@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const jwt=require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config()
@@ -17,6 +19,7 @@ const corsOptions={
 
 app.use(cors(corsOptions))
 app.use(express.json());
+app.use(cookieParser());
 
 
 
@@ -30,11 +33,53 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+// middlewares
+const logger=(req,res,next)=>{
+  console.log('Log:info',req.method,req.url);
+  next();
+
+}
+const verifyToken=(req,res,next)=>{
+  const token=req?.cookies?.token;
+  // console.log('token in the middleware',token);
+  if(!token){
+    return res.status(401).send({message:'unauthorized access'})
+  }
+
+  jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,decoded)=>{
+    
+    if(err){
+      return res.status(401).send({message:'unauthorized access'})
+    }
+    req.user=decoded;
+    
+    next();
+  })
+}
+  // next();
 
 async function run() {
   try {
     const jobsCollection = client.db("jobDB").collection('jobs');
     const appliedCollection = client.db("jobDB").collection('applied');
+     // auth related api
+     app.post('/jwt',logger,async(req,res)=>{
+      const user=req.body;
+      console.log('User for token',user);
+      const token=jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'1d'});
+      // res.send({token});
+      res.cookie('token',token,{
+        httpOnly:true,
+        secure:true,
+        sameSite:'none'
+      })
+      .send({success:true});
+    })
+    app.post('/logout',async(req,res)=>{
+      const user=req.body;
+      console.log('logging out',user);
+      res.clearCookie('token',{maxAge:0}).send({success:true});
+    })
     // Get all jobs data from db
     app.get('/jobs',async (req,res)=>{
          const result=await jobsCollection.find().toArray();
@@ -58,20 +103,42 @@ async function run() {
       const result=await jobsCollection.findOne(query);
       res.send(result);
     })
+    
     // Get jobs data from db using job email
-    app.get('/jobs/:email',async(req,res)=>{
-      const email=req.params.email;
-      const query={email: email};
-      const result=await jobsCollection.find(query).toArray();
+    app.get('/jobs/:email',logger,verifyToken,async(req,res)=>{
+      if(req.user.email !== req.params.email){
+        console.log(req.user.email,req.params.email);
+        return res.status(403).send({message:'Forbidden access'})
+        
+      }
+      let query={};
+      if(req.params?.email){
+          query={email:req.params?.email}
+      }
+      
+      const cursor=jobsCollection.find(query);
+      const result=await cursor.toArray();
       res.send(result);
     })
     // Get appliedJobs data from db using user email
-    app.get('/applied/:email',async(req,res)=>{
-      const email=req.params.email;
-      const query={email: email};
-      const result=await appliedCollection.find(query).toArray();
+    app.get('/applied/:email',logger,verifyToken,async(req,res)=>{
+      if(req.user.email !== req.params.email){
+        console.log(req.user.email,req.params.email);
+        return res.status(403).send({message:'Forbidden access'})
+        
+      }
+      let query={};
+      if(req.params?.email){
+          query={userEmail:req.params?.email}
+      }
+      
+      const cursor=appliedCollection.find(query);
+      const result=await cursor.toArray();
       res.send(result);
     })
+    // Update applied number
+    
+    
     // Save an applied data in db
     app.post('/applied',async (req,res)=>{
       const appliedData=req.body;
