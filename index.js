@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 
 // middleware
 const corsOptions={
-    origin:['http://localhost:5173','https://b9a11-client-side-2244jhalak.web.app','https://b9a11-client-side-2244jhalak.firebaseapp.com'],
+    origin:['https://b9a11-client-side-2244jhalak.web.app','https://b9a11-client-side-2244jhalak.firebaseapp.com'],
     credentials:true,
     optionSuccessStatus:200
 }
@@ -177,9 +177,7 @@ async function run() {
       res.send(result);
     })
 
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    
   } finally {
     // Ensures that the client will close when you finish/error
     
