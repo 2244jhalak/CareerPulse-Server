@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 
 // middleware
 const corsOptions={
-    origin:['http://localhost:5173'],
+    origin:['http://localhost:5173','https://b9a11-client-side-2244jhalak.web.app','https://b9a11-client-side-2244jhalak.firebaseapp.com'],
     credentials:true,
     optionSuccessStatus:200
 }
