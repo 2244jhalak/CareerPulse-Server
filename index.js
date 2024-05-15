@@ -95,6 +95,7 @@ async function run() {
          const result=await jobsCollection.find().toArray();
          res.send(result);
     })
+    
 
     // Get a single job data from db using job id
     app.get('/job/:id',async(req,res)=>{
