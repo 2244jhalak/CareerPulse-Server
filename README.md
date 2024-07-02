@@ -17,7 +17,7 @@ This s a job search platform where users can post and apply for jobs. At first y
 - Firebase
 
 ## How to Run Locally
-- Clone the repository: `https://github.com/2244jhalak/Job-Portal.git`
+- Clone the repository: `https://github.com/2244jhalak/Job-Portal-Server.git`
 - Install dependencies: `npm install`
 - Start the server: `npm run dev`
 
